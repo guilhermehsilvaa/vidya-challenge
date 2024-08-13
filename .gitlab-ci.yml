@@ -1,0 +1,28 @@
+image: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_DRIVER: overlay2
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+    - docker build -t vidya-microservice .
+    - docker tag vidya-microservice registry.gitlab.com/projects-guilherme/vidya-machine-learning-developer-practical-test
+    - docker push registry.gitlab.com/projects-guilherme/vidya-machine-learning-developer-practical-test
+  only:
+    - main
+
+deploy:
+  stage: deploy
+  script:
+    - docker pull registry.gitlab.com/projects-guilherme/vidya-machine-learning-developer-practical-test
+    - docker run -d -p 5000:5000 registry.gitlab.com/projects-guilherme/vidya-machine-learning-developer-practical-test
+  only:
+    - main
