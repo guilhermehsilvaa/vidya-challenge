@@ -18,15 +18,15 @@ build:
   script:
     - echo "$DOCKER_PASSWORD" | docker login $DOCKER_REGISTRY -u "$DOCKER_USER" --password-stdin
     - docker build -t vidya-microservice .
-    - docker tag vidya-microservice $DOCKER_REGISTRY/namespace/project-name:latest
-    - docker push $DOCKER_REGISTRY/namespace/project-name:latest
+    - docker tag vidya-microservice $DOCKER_REGISTRY/projects-guilherme/vidya-machine-learning-developer-practical-test:latest
+    - docker push $DOCKER_REGISTRY/projects-guilherme/vidya-machine-learning-developer-practical-test:latest
   only:
     - main
 
 deploy:
   stage: deploy
   script:
-    - docker pull $DOCKER_REGISTRY/namespace/project-name:latest
-    - docker run -d --name vidya-microservice -p 5000:5000 $DOCKER_REGISTRY/namespace/project-name:latest
+    - docker pull $DOCKER_REGISTRY/projects-guilherme/vidya-machine-learning-developer-practical-test:latest
+    - docker run -d --name vidya-microservice -p 5000:5000 $DOCKER_REGISTRY/projects-guilherme/vidya-machine-learning-developer-practical-test:latest
   only:
     - main
