@@ -3,7 +3,7 @@ FROM python:3.10-slim
 WORKDIR /app
 
 COPY app.py /app/
-COPY model.keras /app/
+COPY best_model.keras /app/
 
 RUN pip install flask flask-cors tensorflow
 
