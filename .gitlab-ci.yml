@@ -5,6 +5,9 @@ services:
 
 variables:
   DOCKER_DRIVER: overlay2
+  DOCKER_REGISTRY: registry.gitlab.com
+  DOCKER_USER: $CI_REGISTRY_USER
+  DOCKER_PASSWORD: $CI_REGISTRY_PASSWORD
 
 stages:
   - build
@@ -13,28 +16,17 @@ stages:
 build:
   stage: build
   script:
+    - echo "$DOCKER_PASSWORD" | docker login $DOCKER_REGISTRY -u "$DOCKER_USER" --password-stdin
     - docker build -t vidya-microservice .
-    - docker tag vidya-microservice registry.gitlab.com/projects-guilherme/vidya-machine-learning-developer-practical-test
-    - docker push registry.gitlab.com/projects-guilherme/vidya-machine-learning-developer-practical-test
+    - docker tag vidya-microservice $DOCKER_REGISTRY/namespace/project-name:latest
+    - docker push $DOCKER_REGISTRY/namespace/project-name:latest
   only:
     - main
 
 deploy:
   stage: deploy
   script:
-    - docker pull registry.gitlab.com/projects-guilherme/vidya-machine-learning-developer-practical-test
-    - docker run -d --name vidya-microservice -p 5000:5000 registry.gitlab.com/projects-guilherme/vidya-machine-learning-developer-practical-test
-    - |
-      # Esperar até que o serviço esteja disponível
-      for i in {1..10}; do
-        if curl -s http://localhost:5000/predict > /dev/null; then
-          echo "O serviço está disponível."
-          exit 0
-        fi
-        echo "O serviço não está disponível, esperando 10 segundos..."
-        sleep 10
-      done
-      echo "O serviço não ficou disponível a tempo."
-      exit 1
+    - docker pull $DOCKER_REGISTRY/namespace/project-name:latest
+    - docker run -d --name vidya-microservice -p 5000:5000 $DOCKER_REGISTRY/namespace/project-name:latest
   only:
     - main
