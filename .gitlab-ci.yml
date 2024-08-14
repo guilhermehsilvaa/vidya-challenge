@@ -23,6 +23,18 @@ deploy:
   stage: deploy
   script:
     - docker pull registry.gitlab.com/projects-guilherme/vidya-machine-learning-developer-practical-test
-    - docker run -d -p 5000:5000 registry.gitlab.com/projects-guilherme/vidya-machine-learning-developer-practical-test
+    - docker run -d --name vidya-microservice -p 5000:5000 registry.gitlab.com/projects-guilherme/vidya-machine-learning-developer-practical-test
+    - |
+      # Esperar até que o serviço esteja disponível
+      for i in {1..10}; do
+        if curl -s http://localhost:5000/predict > /dev/null; then
+          echo "O serviço está disponível."
+          exit 0
+        fi
+        echo "O serviço não está disponível, esperando 10 segundos..."
+        sleep 10
+      done
+      echo "O serviço não ficou disponível a tempo."
+      exit 1
   only:
     - main
