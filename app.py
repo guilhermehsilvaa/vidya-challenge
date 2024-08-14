@@ -1,27 +1,25 @@
 from flask import Flask, request, jsonify
 import numpy as np
+from flask import Flask, request, jsonify
 import tensorflow as tf
-from tensorflow.keras.models import load_model
-from flask_cors import CORS
+import numpy as np
 
 app = Flask(__name__)
-CORS(app)
 
-model = load_model('best_model.keras')
+model = tf.keras.models.load_model('best_model.h5')
 
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        data = request.get_json()
-        features = np.array(data['features'])
+        data = request.json
         
-        predictions = model.predict(features)
-        predicted_classes = np.argmax(predictions, axis=1)
+        features = np.array(data['data'])
+        features = features.reshape(1, 28, 28, 1)
         
-        response = {
-            'predictions': predicted_classes.tolist()
-        }
-        return jsonify(response)
+        prediction = model.predict(features)
+        predicted_class = np.argmax(prediction, axis=1)
+        
+        return jsonify({'prediction': int(predicted_class[0])})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
